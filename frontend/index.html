@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat & PDF Upload</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+        }
+        .left-panel, .right-panel {
+            height: 100vh;
+            padding: 20px;
+        }
+        .left-panel {
+            width: 40%;
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 2px solid #ddd;
+        }
+        .right-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-box {
+            width: 100%;
+            height: 80%;
+            overflow-y: auto;
+            border-radius: 10px;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-input {
+            display: flex;
+            width: 100%;
+            margin-top: 10px;
+        }
+        textarea {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+        button {
+            background: rgb(31, 149, 203);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background: rgb(45, 177, 239);
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            width: 90%;
+            border-radius: 10px;
+        }
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- LEFT PANEL - PDF Upload -->
+        
+        <div id="output" style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 10px;"></div>
+        <div class="loader" id="loader"></div>
+        <!-- RIGHT PANEL - Chat with Gemini -->
+        <div class="right-panel">
+            <h2>AI Chat (Talk to DB)</h2>
+            <div class="chat-box" id="chatBox"></div>
+            <div class="chat-input">
+                <textarea id="userQuery" placeholder="Ask about your data..."></textarea>
+                <button onclick="askData()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            alert("PDF submitted! You can now ask AI about your data.");
+        }
+
+        async function askData() {
+            const query = document.getElementById('userQuery').value;
+            const outputElement = document.getElementById('output');
+            const loader = document.getElementById('loader');
+
+            if (!query.trim()) {
+                outputElement.innerText = "Please enter a query!";
+                return;
+            }
+
+            loader.style.display = "block"; // Show loader
+            outputElement.innerText = ""; // Clear previous output
+
+            try {
+                const response = await fetch('http://localhost:3000/ask-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Server Error:", errorText);
+                    outputElement.innerText = "Error: " + errorText;
+                    return;
+                }
+
+                const result = await response.json();
+                outputElement.innerText = result.response || "No response from AI.";
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                outputElement.innerText = "Failed to connect to the server.";
+            } finally {
+                loader.style.display = "none"; // Hide loader
+            }
+        }
+    </script>
+
+</body>
+</html>
