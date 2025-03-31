@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+model tablerecord {
+  id    Int     @id @default(autoincrement())
+  title  String?
+  description String?
+  keywords String
+  table_json String 
+  docOfOrigin String
+  createdAt DateTime @default(now()) @updatedAt
+}
+
+
