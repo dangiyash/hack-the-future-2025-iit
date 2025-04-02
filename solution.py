@@ -11,7 +11,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 
 
 
-# client = genai.Client(api_key="AIzaSyC_eBiiJRNneilrj30VnwsK2JkhoIG6Jlk")
+
 
 def pdfFromLink(pdf_url):
     response = requests.get(pdf_url)
